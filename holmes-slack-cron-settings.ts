@@ -14,4 +14,9 @@ export type HolmesSlackCronSettings = {
    * The fingerprint bucket
    */
   readonly bucket: string;
+
+  /**
+   * The cron expression
+   */
+  readonly cron: string;
 };

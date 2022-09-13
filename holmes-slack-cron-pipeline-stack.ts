@@ -1,7 +1,6 @@
 import { pipelines, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
-import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { STACK_DESCRIPTION } from "./holmes-slack-cron-settings";
 import {
   AWS_DEV_ACCOUNT,
@@ -49,31 +48,7 @@ export class HolmesSlackCronPipelineStack extends Stack {
           // our cdk is configured to use ts-node - so we don't need any build step - just synth
           "npx cdk synth",
         ],
-        rolePolicyStatements: [
-          new PolicyStatement({
-            effect: Effect.ALLOW,
-            actions: ["sts:AssumeRole"],
-            resources: ["*"],
-            //conditions: {
-            //  StringEquals: {
-            //    "iam:ResourceTag/aws-cdk:bootstrap-role": "lookup",
-            //  },
-            //},
-          }),
-        ],
       }),
-      codeBuildDefaults: {
-        // we need to give the codebuild engines permissions to assume a role in DEV - in order that they
-        // can invoke the tests - we don't know the name of the role yet (as it is built by CDK) - so we
-        // are quite permissive (it is limited to one non-prod account though)
-        rolePolicy: [
-          new PolicyStatement({
-            effect: Effect.ALLOW,
-            actions: ["sts:AssumeRole"],
-            resources: [`arn:aws:iam::${AWS_DEV_ACCOUNT}:role/*`],
-          }),
-        ],
-      },
       crossAccountKeys: true,
     });
 
@@ -83,6 +58,8 @@ export class HolmesSlackCronPipelineStack extends Stack {
         region: AWS_DEV_REGION,
       },
       bucket: "umccr-fingerprint-dev",
+      // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
+      cron: "0/15 * * * ? *",
     });
 
     pipeline.addStage(devStage, {});
@@ -93,6 +70,8 @@ export class HolmesSlackCronPipelineStack extends Stack {
         region: AWS_PROD_REGION,
       },
       bucket: "umccr-fingerprint-prod",
+      // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
+      cron: "0 2 * * ? *",
     });
 
     pipeline.addStage(prodStage, {
