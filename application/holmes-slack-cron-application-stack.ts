@@ -47,6 +47,7 @@ export class HolmesSlackCronApplicationStack extends Stack {
       // question - could we reduce this to just read access to fingerprint bucket?
       // (probably no - it also accesses reference data via s3?)
       "AmazonS3ReadOnlyAccess",
+      "AWSCloudMapReadOnlyAccess",
     ];
 
     const lambdaRole = new Role(this, "Role", {
