@@ -42,6 +42,7 @@ export class HolmesSlackCronApplicationStack extends Stack {
       "service-role/AWSLambdaBasicExecutionRole",
       "AmazonS3ReadOnlyAccess",
       "AWSCloudMapReadOnlyAccess",
+      "AWSStepFunctionsFullAccess",
     ];
 
     const lambdaRole = new Role(this, "Role", {

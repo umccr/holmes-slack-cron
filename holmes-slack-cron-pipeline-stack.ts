@@ -69,7 +69,7 @@ export class HolmesSlackCronPipelineStack extends Stack {
       },
       bucket: "umccr-fingerprint-dev",
       // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
-      cron: "cron(0/15 * * * ? *)",
+      cron: "cron(0 2 * * ? *)",
       channel: "#arteria-dev",
       days: undefined,
       sitesChecksum: sc,
@@ -84,11 +84,10 @@ export class HolmesSlackCronPipelineStack extends Stack {
       },
       bucket: "umccr-fingerprint-prod",
       // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
-      cron: "cron(0/15 * * * ? *)",
-      // cron: "cron(0 2 * * ? *)",
+      cron: "cron(0 2 * * ? *)",
       channel: "#biobots",
       sitesChecksum: sc,
-      days: undefined,
+      days: 1,
     });
 
     pipeline.addStage(prodStage, {
