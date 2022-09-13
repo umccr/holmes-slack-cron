@@ -9,6 +9,7 @@ import {
   AWS_PROD_REGION,
 } from "./umccr-constants";
 import { HolmesSlackCronBuildStage } from "./holmes-slack-cron-build-stage";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 /**
  * Stack to hold the self mutating pipeline, and all the relevant settings for deployments
@@ -47,6 +48,13 @@ export class HolmesSlackCronPipelineStack extends Stack {
           "npm ci",
           // our cdk is configured to use ts-node - so we don't need any build step - just synth
           "npx cdk synth",
+        ],
+        rolePolicyStatements: [
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: ["sts:AssumeRole"],
+            resources: ["*"],
+          }),
         ],
       }),
       crossAccountKeys: true,
