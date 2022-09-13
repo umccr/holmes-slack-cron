@@ -19,4 +19,14 @@ export type HolmesSlackCronSettings = {
    * The cron expression
    */
   readonly cron: string;
+
+  /**
+   * The slack channel to report to
+   */
+  readonly channel: string;
+
+  /**
+   * The sites checksum to be looking at
+   */
+  readonly sitesChecksum: string;
 };

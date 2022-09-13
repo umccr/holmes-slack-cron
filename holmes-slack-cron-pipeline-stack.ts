@@ -52,6 +52,8 @@ export class HolmesSlackCronPipelineStack extends Stack {
       crossAccountKeys: true,
     });
 
+    const sc = "ad0e523b19164b9af4dda86c90462f6a"; // pragma: allowlist secret
+
     const devStage = new HolmesSlackCronBuildStage(this, "Dev", {
       env: {
         account: AWS_DEV_ACCOUNT,
@@ -60,6 +62,8 @@ export class HolmesSlackCronPipelineStack extends Stack {
       bucket: "umccr-fingerprint-dev",
       // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
       cron: "0/15 * * * ? *",
+      channel: "#arteria-dev",
+      sitesChecksum: sc,
     });
 
     pipeline.addStage(devStage, {});
@@ -72,6 +76,8 @@ export class HolmesSlackCronPipelineStack extends Stack {
       bucket: "umccr-fingerprint-prod",
       // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
       cron: "0 2 * * ? *",
+      channel: "#biobots",
+      sitesChecksum: sc,
     });
 
     pipeline.addStage(prodStage, {

@@ -16,6 +16,7 @@ import {
 import { DockerImageCode, DockerImageFunction } from "aws-cdk-lib/aws-lambda";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
+import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 /**
  * The Holmes Slack Cron is a service that regularly runs a report over Slack
@@ -35,6 +36,28 @@ export class HolmesSlackCronApplicationStack extends Stack {
     //const vpc = Vpc.fromLookup(this, "MainVpc", {
     //  vpcName: "main-vpc",
     //});
+    const slackSecret = Secret.fromSecretNameV2(
+      this,
+      "SlackSecret",
+      "SlackApps"
+    );
+
+    const permissions = [
+      "service-role/AWSLambdaBasicExecutionRole",
+      // question - could we reduce this to just read access to fingerprint bucket?
+      // (probably no - it also accesses reference data via s3?)
+      "AmazonS3ReadOnlyAccess",
+    ];
+
+    const lambdaRole = new Role(this, "Role", {
+      assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+    });
+
+    permissions.map((permission) => {
+      lambdaRole.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName(permission)
+      );
+    });
 
     const dockerImageAsset = this.addDockerAsset();
 
@@ -44,35 +67,22 @@ export class HolmesSlackCronApplicationStack extends Stack {
       code: DockerImageCode.fromEcr(dockerImageAsset.repository, {
         tag: dockerImageAsset.assetHash,
       }),
+      role: lambdaRole,
       environment: {
-        BUCKET: "",
+        BUCKET: props.bucket,
         DAYS: "1",
-        SITES_CHECKSUM: "",
-        CHANNEL: "",
+        SITES_CHECKSUM: props.sitesChecksum,
+        CHANNEL: props.channel,
       },
     });
 
     const eventRule = new Rule(this, "ScheduleRule", {
-      schedule: Schedule.cron({ minute: "0", hour: "1" }),
+      schedule: Schedule.expression(props.cron),
     });
 
     eventRule.addTarget(new LambdaFunction(func));
 
-    /*icaSecret.grantRead(checkStateMachine.taskRole);
-    icaSecret.grantRead(extractStateMachine.taskRole);
-    icaSecret.grantRead(differenceStateMachine.taskRole);
-    icaSecret.grantRead(differenceThenExtractStateMachine.taskRole);
-    icaSecret.grantRead(differenceThenExtractStateMachine.lambdaTaskRole);
-
-    fingerprintBucket.grantRead(checkStateMachine.taskRole);
-    fingerprintBucket.grantRead(differenceStateMachine.taskRole);
-    fingerprintBucket.grantReadWrite(extractStateMachine.taskRole);
-    fingerprintBucket.grantReadWrite(
-      differenceThenExtractStateMachine.taskRole
-    );
-    fingerprintBucket.grantReadWrite(
-      differenceThenExtractStateMachine.lambdaTaskRole
-    ); */
+    slackSecret.grantRead(lambdaRole);
   }
 
   /**
