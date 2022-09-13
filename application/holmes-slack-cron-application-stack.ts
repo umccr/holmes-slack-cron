@@ -32,10 +32,6 @@ export class HolmesSlackCronApplicationStack extends Stack {
 
     this.templateOptions.description = STACK_DESCRIPTION;
 
-    // we sometimes need to execute tasks in a VPC context
-    //const vpc = Vpc.fromLookup(this, "MainVpc", {
-    //  vpcName: "main-vpc",
-    //});
     const slackSecret = Secret.fromSecretNameV2(
       this,
       "SlackSecret",
@@ -44,8 +40,6 @@ export class HolmesSlackCronApplicationStack extends Stack {
 
     const permissions = [
       "service-role/AWSLambdaBasicExecutionRole",
-      // question - could we reduce this to just read access to fingerprint bucket?
-      // (probably no - it also accesses reference data via s3?)
       "AmazonS3ReadOnlyAccess",
       "AWSCloudMapReadOnlyAccess",
     ];
