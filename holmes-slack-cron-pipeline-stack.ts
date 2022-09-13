@@ -71,6 +71,7 @@ export class HolmesSlackCronPipelineStack extends Stack {
       // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
       cron: "cron(0/15 * * * ? *)",
       channel: "#arteria-dev",
+      days: undefined,
       sitesChecksum: sc,
     });
 
@@ -87,6 +88,7 @@ export class HolmesSlackCronPipelineStack extends Stack {
       // cron: "cron(0 2 * * ? *)",
       channel: "#biobots",
       sitesChecksum: sc,
+      days: undefined,
     });
 
     pipeline.addStage(prodStage, {

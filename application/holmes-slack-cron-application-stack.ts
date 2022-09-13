@@ -56,6 +56,16 @@ export class HolmesSlackCronApplicationStack extends Stack {
 
     const dockerImageAsset = this.addDockerAsset();
 
+    const env: any = {
+      BUCKET: props.bucket,
+      SITES_CHECKSUM: props.sitesChecksum,
+      CHANNEL: props.channel,
+    };
+
+    if (props.days) {
+      env["DAYS"] = props.days.toString();
+    }
+
     const func = new DockerImageFunction(this, `GroupFunction`, {
       memorySize: 2048,
       timeout: Duration.minutes(14),
@@ -63,12 +73,7 @@ export class HolmesSlackCronApplicationStack extends Stack {
         tag: dockerImageAsset.assetHash,
       }),
       role: lambdaRole,
-      environment: {
-        BUCKET: props.bucket,
-        DAYS: "1",
-        SITES_CHECKSUM: props.sitesChecksum,
-        CHANNEL: props.channel,
-      },
+      environment: env,
     });
 
     const eventRule = new Rule(this, "ScheduleRule", {

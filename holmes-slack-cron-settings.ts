@@ -21,6 +21,11 @@ export type HolmesSlackCronSettings = {
   readonly cron: string;
 
   /**
+   * Days or undefined to mean last
+   */
+  readonly days?: number;
+
+  /**
    * The slack channel to report to
    */
   readonly channel: string;
