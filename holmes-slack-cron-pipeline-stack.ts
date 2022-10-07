@@ -68,11 +68,13 @@ export class HolmesSlackCronPipelineStack extends Stack {
         region: AWS_DEV_REGION,
       },
       bucket: "umccr-fingerprint-dev",
-      // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
-      cron: "cron(0 2 * * ? *)",
+      // NOTE: THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
+      // NOTE: this runs only on the first day of the month in deployed dev - change when doing actual dev work
+      cron: "cron(0 2 1 * ? *)",
       channel: "#arteria-dev",
-      days: undefined,
       sitesChecksum: sc,
+      // we look back until we find fingerprints (useful for dev)
+      days: undefined,
     });
 
     pipeline.addStage(devStage, {});
@@ -83,10 +85,12 @@ export class HolmesSlackCronPipelineStack extends Stack {
         region: AWS_PROD_REGION,
       },
       bucket: "umccr-fingerprint-prod",
-      // NOTE THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
+      // NOTE: THIS IS A UTC HOUR - SO LOOKING AT RUNNING ABOUT MIDDAY 2+10
+      // NOTE: it runs every day though we don't expect most days for it to discover fingerprints
       cron: "cron(0 2 * * ? *)",
       channel: "#biobots",
       sitesChecksum: sc,
+      // we look back one day for fingerprints to report on
       days: 1,
     });
 
